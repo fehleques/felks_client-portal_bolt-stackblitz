@@ -1,75 +1,31 @@
-"use client"
-
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { 
-  Clock, CheckCircle2, Filter, AlertCircle, Workflow, 
-  BarChart4, Calendar, ClipboardCheck
+import {
+  Clock, CheckCircle2, Filter, Workflow,
+  Calendar, ClipboardCheck
 } from "lucide-react"
 import { RequestList } from "@/components/request-list"
 import { DesignRequest } from "@/types"
+import { prisma } from "@/lib/prisma"
 
-// Mock data
-const availableRequests: DesignRequest[] = [
-  {
-    id: "req5",
-    clientId: "client2",
-    title: "Product packaging design for organic snacks",
-    description: "Eco-friendly packaging design for a line of organic snack products.",
-    category: "Packaging Design",
-    status: "pending",
-    priority: "high",
-    deadline: new Date(Date.now() + 86400000 * 1.5).toISOString(), // 1.5 days from now
-    createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req6",
-    clientId: "client3",
-    title: "Email newsletter template design",
-    description: "Clean, modern email template for monthly newsletter.",
-    category: "Web Design",
-    status: "pending",
-    priority: "medium",
-    deadline: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-    createdAt: new Date(Date.now() - 21600000).toISOString(), // 6 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req7",
-    clientId: "client1",
-    title: "Brand style guide for startup",
-    description: "Comprehensive style guide including logo usage, color palette, typography, and imagery guidelines.",
-    category: "Brand Identity",
-    status: "pending",
-    priority: "urgent",
-    deadline: new Date(Date.now() + 86400000).toISOString(), // 1 day from now
-    createdAt: new Date(Date.now() - 64800000).toISOString(), // 18 hours ago
-    updatedAt: new Date().toISOString()
-  }
-];
+export default async function DesignerDashboard() {
+  const [rawAvailableRequests, rawMyActiveWork] = await Promise.all([
+    prisma.designRequest.findMany({ where: { status: "pending" } }),
+    prisma.designRequest.findMany({ where: { designerId: "designer1", NOT: { status: "completed" } } })
+  ])
 
-const myActiveWork: DesignRequest[] = [
-  {
-    id: "req1",
-    clientId: "client1",
-    title: "Logo design for tech startup",
-    description: "A modern, minimal logo for a fintech startup. The name is 'Flume'.",
-    category: "Logo Design",
-    status: "in_progress",
-    priority: "high",
-    deadline: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    updatedAt: new Date().toISOString(),
-    designerId: "designer1"
-  }
-];
+  const serialize = (r: any): DesignRequest => ({
+    ...r,
+    deadline: r.deadline.toISOString(),
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString()
+  })
 
-export default function DesignerDashboard() {
-  const router = useRouter()
-  
+  const availableRequests = rawAvailableRequests.map(serialize)
+  const myActiveWork = rawMyActiveWork.map(serialize)
+
   return (
     <div className="container py-6 md:py-8 space-y-8">
       <div>
@@ -138,17 +94,21 @@ export default function DesignerDashboard() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-xl font-semibold">Available Requests</h2>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => router.push("/designer/requests")}>
+        <div className="flex items-center gap-2">
+          <Link href="/designer/requests">
+            <Button variant="outline" size="sm" className="flex items-center gap-1">
               <Filter className="h-4 w-4" />
               Filter
             </Button>
-            <Button size="sm" className="flex items-center gap-1" onClick={() => router.push("/designer/requests")}>
+          </Link>
+          <Link href="/designer/requests">
+            <Button size="sm" className="flex items-center gap-1">
               <Workflow className="h-4 w-4" />
               View All
             </Button>
-          </div>
+          </Link>
         </div>
+      </div>
         
         <div className="grid grid-cols-1 gap-4">
           {availableRequests.slice(0, 3).map((request) => (
@@ -178,8 +138,8 @@ export default function DesignerDashboard() {
                   <div className="text-xs text-muted-foreground">
                     Posted {new Date(request.createdAt).toLocaleDateString()}
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => router.push(`/designer/requests/${request.id}`)}>
-                    View Details
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href={`/designer/requests/${request.id}`}>View Details</Link>
                   </Button>
                 </div>
               </div>

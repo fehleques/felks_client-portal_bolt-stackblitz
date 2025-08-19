@@ -1,72 +1,44 @@
-"use client"
-
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
-  PlusCircle, Clock, CheckCircle2, FileWarning, AlertTriangle, 
+import {
+  PlusCircle, Clock, CheckCircle2, AlertTriangle,
   Thermometer, Zap, FileText
 } from "lucide-react"
 import { RequestList } from "@/components/request-list"
 import { ThermometerDisplay } from "@/components/thermometer-display"
 import { DesignRequest } from "@/types"
+import { prisma } from "@/lib/prisma"
 
-// Mock data
-const activeRequests: DesignRequest[] = [
-  {
-    id: "req1",
-    clientId: "client1",
-    title: "Logo design for tech startup",
-    description: "A modern, minimal logo for a fintech startup. The name is 'Flume'.",
-    category: "Logo Design",
-    status: "in_progress",
-    priority: "high",
-    deadline: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    updatedAt: new Date().toISOString(),
-    designerId: "designer1"
-  },
-  {
-    id: "req2",
-    clientId: "client1",
-    title: "Website banner for seasonal promotion",
-    description: "Summer sale banner for e-commerce website. Bright and attractive.",
-    category: "Web Design",
-    status: "pending",
-    priority: "medium",
-    deadline: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days from now
-    createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
-    updatedAt: new Date().toISOString()
-  }
-];
+export default async function ClientDashboard() {
+  const clientId = "client1"
 
-const completedRequests: DesignRequest[] = [
-  {
-    id: "req3",
-    clientId: "client1",
-    title: "Social media post templates",
-    description: "Set of 5 Instagram post templates for product launch",
-    category: "Social Media Graphics",
-    status: "completed",
-    priority: "medium",
-    deadline: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
-    updatedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-    designerId: "designer2"
-  }
-];
+  const [rawActive, rawCompleted, thermometer] = await Promise.all([
+    prisma.designRequest.findMany({ where: { clientId, NOT: { status: "completed" } } }),
+    prisma.designRequest.findMany({ where: { clientId, status: "completed" } }),
+    prisma.thermometerMetric.findUnique({ where: { userId: clientId } })
+  ])
 
-// Mock thermometer data
-const thermometerData = {
-  currentLevel: 65, // 0-100
-  maxRequests: 5,
-  currentRequests: 3,
-  cooldownDate: undefined // No cooldown
-};
+  const serialize = (r: any): DesignRequest => ({
+    ...r,
+    deadline: r.deadline.toISOString(),
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString()
+  })
 
-export default function ClientDashboard() {
+  const activeRequests = rawActive.map(serialize)
+  const completedRequests = rawCompleted.map(serialize)
+
+  const thermometerData = thermometer
+    ? {
+        currentLevel: thermometer.currentLevel,
+        maxRequests: thermometer.maxRequests,
+        currentRequests: thermometer.currentRequests,
+        cooldownDate: thermometer.cooldownDate?.toISOString()
+      }
+    : { currentLevel: 0, maxRequests: 0, currentRequests: 0 }
+
   return (
     <div className="container py-8 md:py-12 space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -142,7 +114,7 @@ export default function ClientDashboard() {
                 <div className="mt-4 p-3 bg-amber-100 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 rounded-xl flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                   <p className="text-amber-800 dark:text-amber-300 text-xs">
-                    You're nearing your request limit. Consider spacing out new requests.
+                    You&apos;re nearing your request limit. Consider spacing out new requests.
                   </p>
                 </div>
               ) : null}

@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { 
   Check, ChevronDown, Clock, Filter, Search, 
   SlidersHorizontal, SortAsc, X 
@@ -34,72 +33,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { DesignRequest, RequestCategory } from "@/types"
-
-// Mock data
-const availableRequests: DesignRequest[] = [
-  {
-    id: "req5",
-    clientId: "client2",
-    title: "Product packaging design for organic snacks",
-    description: "Eco-friendly packaging design for a line of organic snack products. Looking for a clean, modern design that highlights the natural ingredients.",
-    category: "Packaging Design",
-    status: "pending",
-    priority: "high",
-    deadline: new Date(Date.now() + 86400000 * 1.5).toISOString(), // 1.5 days from now
-    createdAt: new Date(Date.now() - 43200000).toISOString(), // 12 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req6",
-    clientId: "client3",
-    title: "Email newsletter template design",
-    description: "Clean, modern email template for monthly newsletter. Should be compatible with major email clients and have a responsive design.",
-    category: "Web Design",
-    status: "pending",
-    priority: "medium",
-    deadline: new Date(Date.now() + 86400000 * 2).toISOString(), // 2 days from now
-    createdAt: new Date(Date.now() - 21600000).toISOString(), // 6 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req7",
-    clientId: "client1",
-    title: "Brand style guide for startup",
-    description: "Comprehensive style guide including logo usage, color palette, typography, and imagery guidelines. This will be used across all company materials.",
-    category: "Brand Identity",
-    status: "pending",
-    priority: "urgent",
-    deadline: new Date(Date.now() + 86400000).toISOString(), // 1 day from now
-    createdAt: new Date(Date.now() - 64800000).toISOString(), // 18 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req8",
-    clientId: "client4",
-    title: "Custom illustrations for website",
-    description: "Set of 5 custom illustrations for a technology company website. Looking for a consistent style that depicts cloud computing concepts.",
-    category: "Illustrations",
-    status: "pending",
-    priority: "medium",
-    deadline: new Date(Date.now() + 86400000 * 3).toISOString(), // 3 days from now
-    createdAt: new Date(Date.now() - 36000000).toISOString(), // 10 hours ago
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "req9",
-    clientId: "client5",
-    title: "Social media graphics for campaign",
-    description: "A set of 10 social media graphics for a product launch campaign. Formats needed for Instagram, Facebook, and Twitter.",
-    category: "Social Media Graphics",
-    status: "pending",
-    priority: "high",
-    deadline: new Date(Date.now() + 86400000 * 2.5).toISOString(), // 2.5 days from now
-    createdAt: new Date(Date.now() - 28800000).toISOString(), // 8 hours ago
-    updatedAt: new Date().toISOString()
-  }
-];
 
 const categories: RequestCategory[] = [
   "Logo Design",
@@ -114,11 +50,17 @@ const categories: RequestCategory[] = [
 ];
 
 export default function DesignerRequestsPage() {
-  const router = useRouter()
+  const [availableRequests, setAvailableRequests] = useState<DesignRequest[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedPriorities, setSelectedPriorities] = useState<string[]>([])
   const [sortOrder, setSortOrder] = useState<"deadline" | "priority" | "recent">("deadline")
+
+  useEffect(() => {
+    fetch("/api/requests?status=pending")
+      .then(res => res.json())
+      .then(data => setAvailableRequests(data))
+  }, [])
   
   const filteredRequests = availableRequests.filter(request => {
     const matchesSearch = searchQuery === "" || 
@@ -360,40 +302,42 @@ export default function DesignerRequestsPage() {
           </div>
         ) : (
           sortedRequests.map((request) => (
-            <Card key={request.id} className="transition-all hover:shadow-md cursor-pointer" onClick={() => router.push(`/designer/requests/${request.id}`)}>
-              <CardContent className="p-5">
-                <div className="flex flex-col lg:flex-row gap-4">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Badge variant="outline">{request.category}</Badge>
-                      <Badge variant="outline" className={cn(getPriorityColor(request.priority))}>
-                        {request.priority}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        ID: {request.id.substring(0, 8)}
-                      </span>
+            <Link href={`/designer/requests/${request.id}`} key={request.id}>
+              <Card className="transition-all hover:shadow-md cursor-pointer">
+                <CardContent className="p-5">
+                  <div className="flex flex-col lg:flex-row gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="outline">{request.category}</Badge>
+                        <Badge variant="outline" className={cn(getPriorityColor(request.priority))}>
+                          {request.priority}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          ID: {request.id.substring(0, 8)}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h3 className="text-lg font-semibold">{request.title}</h3>
+                        <p className="mt-1 text-muted-foreground line-clamp-2">
+                          {request.description}
+                        </p>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-semibold">{request.title}</h3>
-                      <p className="mt-1 text-muted-foreground line-clamp-2">
-                        {request.description}
-                      </p>
+
+                    <div className="flex flex-row lg:flex-col justify-between lg:items-end lg:min-w-[140px] gap-2">
+                      <div className="flex items-center gap-1 text-xs lg:text-sm">
+                        <Clock className="h-3.5 w-3.5 text-amber-500" />
+                        <span className="text-amber-600 dark:text-amber-400 font-medium">
+                          {getDaysUntilDeadline(request.deadline)}
+                        </span>
+                      </div>
+                      <Button size="sm">Take Request</Button>
                     </div>
                   </div>
-                  
-                  <div className="flex flex-row lg:flex-col justify-between lg:items-end lg:min-w-[140px] gap-2">
-                    <div className="flex items-center gap-1 text-xs lg:text-sm">
-                      <Clock className="h-3.5 w-3.5 text-amber-500" />
-                      <span className="text-amber-600 dark:text-amber-400 font-medium">
-                        {getDaysUntilDeadline(request.deadline)}
-                      </span>
-                    </div>
-                    <Button size="sm">Take Request</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Link>
           ))
         )}
       </div>

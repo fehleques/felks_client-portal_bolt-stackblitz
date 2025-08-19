@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -53,7 +53,7 @@ import {
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { ThermometerDisplay } from "@/components/thermometer-display"
-import { RequestCategory } from "@/types"
+import { RequestCategory, ThermometerData } from "@/types"
 
 const requestCategories: RequestCategory[] = [
   "Logo Design",
@@ -75,19 +75,18 @@ const formSchema = z.object({
   priority: z.enum(["low", "medium", "high", "urgent"])
 });
 
-// Mock thermometer data - high temperature
-const thermometerData = {
-  currentLevel: 85, // 0-100
-  maxRequests: 5,
-  currentRequests: 4,
-  cooldownDate: undefined
-};
-
 export default function NewRequestPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [showWarning, setShowWarning] = useState(false)
+  const [thermometerData, setThermometerData] = useState<ThermometerData | null>(null)
+
+  useEffect(() => {
+    fetch("/api/thermometer?userId=client1")
+      .then(res => res.json())
+      .then(data => setThermometerData(data))
+  }, [])
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -101,7 +100,7 @@ export default function NewRequestPage() {
   
   function onSubmit(values: z.infer<typeof formSchema>) {
     // If thermometer is hot, show warning
-    if (thermometerData.currentLevel > 80) {
+    if (thermometerData && thermometerData.currentLevel > 80) {
       setShowWarning(true)
       return
     }
@@ -295,14 +294,14 @@ export default function NewRequestPage() {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Request Thermometer</h3>
-                <ThermometerDisplay data={thermometerData} />
+                {thermometerData && <ThermometerDisplay data={thermometerData} />}
                 
                 <div className="rounded-md bg-amber-50 dark:bg-amber-950 p-3 text-sm text-amber-900 dark:text-amber-200 flex items-start gap-2 border border-amber-200 dark:border-amber-900">
                   <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium mb-1">Your request volume is high</p>
                     <p className="text-xs">
-                      You've submitted several requests recently. You may experience slightly longer turnaround times.
+                      You&apos;ve submitted several requests recently. You may experience slightly longer turnaround times.
                     </p>
                   </div>
                 </div>
