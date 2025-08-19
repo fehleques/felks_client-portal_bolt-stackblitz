@@ -302,7 +302,7 @@ export default function NewRequestPage() {
                   <div>
                     <p className="font-medium mb-1">Your request volume is high</p>
                     <p className="text-xs">
-                      You've submitted several requests recently. You may experience slightly longer turnaround times.
+                      You&apos;ve submitted several requests recently. You may experience slightly longer turnaround times.
                     </p>
                   </div>
                 </div>
