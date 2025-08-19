@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { UserRole } from '@/lib/auth';
-import { Loader2 } from 'lucide-react';
+import { PageLoadingSpinner } from './loading-spinner';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -33,14 +33,7 @@ export function AuthGuard({ children, requiredRole, redirectTo = '/auth/login' }
   }, [isAuthenticated, isLoading, user, requiredRole, router, redirectTo]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <PageLoadingSpinner />;
   }
 
   if (!isAuthenticated) {

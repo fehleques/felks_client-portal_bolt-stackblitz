@@ -107,7 +107,8 @@ export function BackgroundImageSection({
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
+            style={{ minHeight: '100%', minWidth: '100%' }}
           />
         </div>
       )}

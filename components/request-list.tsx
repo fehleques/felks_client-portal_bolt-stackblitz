@@ -9,13 +9,15 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DesignRequest, RequestStatus } from "@/types"
+import { RequestListSkeleton } from "./request-list-skeleton"
 
 interface RequestListProps {
   requests: DesignRequest[]
   emptyMessage?: string
+  isLoading?: boolean
 }
 
-export function RequestList({ requests, emptyMessage = "No requests found." }: RequestListProps) {
+export function RequestList({ requests, emptyMessage = "No requests found.", isLoading = false }: RequestListProps) {
   const getStatusIcon = (status: RequestStatus) => {
     switch (status) {
       case "pending":
@@ -63,6 +65,10 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
     return !isAfter(new Date(deadline), new Date())
   }
   
+  if (isLoading) {
+    return <RequestListSkeleton />
+  }
+
   if (requests.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-3">
