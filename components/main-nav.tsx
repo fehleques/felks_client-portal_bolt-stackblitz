@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { Logo } from "@/components/logo"
+import { useAuth } from "@/contexts/auth-context"
 
 interface MainNavProps {
   userRole?: "client" | "designer"
@@ -16,6 +17,7 @@ interface MainNavProps {
 
 export function MainNav({ userRole }: MainNavProps) {
   const pathname = usePathname()
+  const { user, logout } = useAuth()
   
   const isClient = userRole === "client"
   const isDesigner = userRole === "designer"
@@ -94,8 +96,17 @@ export function MainNav({ userRole }: MainNavProps) {
           
           <div className="flex items-center gap-4">
             <ModeToggle />
-            <Button variant="ghost" asChild className="transition-all duration-200 hover:bg-muted/50">
-              <Link href="/auth/login">Log out</Link>
+            {user && (
+              <span className="text-sm text-muted-foreground hidden sm:inline">
+                {user.name}
+              </span>
+            )}
+            <Button 
+              variant="ghost" 
+              onClick={logout}
+              className="transition-all duration-200 hover:bg-muted/50"
+            >
+              Log out
             </Button>
           </div>
         </div>

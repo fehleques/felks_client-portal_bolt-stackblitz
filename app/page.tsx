@@ -1,12 +1,31 @@
+"use client";
+
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Logo } from '@/components/logo';
 import { BackgroundImageSection } from '@/components/background-image-section';
+import { useAuth } from '@/contexts/auth-context';
 
-import heroVideo from '../assets/hero_video_final_final.mp4';
+// Removed broken import - video is referenced via public path
 
 export default function Home() {
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Redirect authenticated users to their dashboard
+      if (user.role === 'client') {
+        router.push('/client/dashboard');
+      } else {
+        router.push('/designer/dashboard');
+      }
+    }
+  }, [isAuthenticated, user, router]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b">
@@ -26,7 +45,7 @@ export default function Home() {
       <main className="flex-1">
         <BackgroundImageSection
           videoSrc="/hero_video_final_final.mp4"
-          videoPoster="/assets/hero_frame.jpg"
+          videoPoster=""
           minHeightClassName="min-h-[70vh]"
           contentAlign="center"
         >

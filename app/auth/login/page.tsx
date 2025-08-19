@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -28,6 +29,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { login, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,19 +41,14 @@ export default function LoginPage() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    
-    // Mock login process
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    toast({
-      title: "Login successful",
-      description: "Welcome back to Design Studio!",
-    })
-    
-    // In a real app, this would authenticate the user and redirect to dashboard
-    router.push("/client/dashboard")
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await login(values.email, values.password)
+    } catch (error) {
+      // Error handling is done in the auth context
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -98,8 +95,8 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
+                {(isLoading || authLoading) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logging in...
@@ -112,7 +109,7 @@ export default function LoginPage() {
           </Form>
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link href="/auth/signup" className="underline underline-offset-2 hover:text-foreground">
                 Sign up
               </Link>

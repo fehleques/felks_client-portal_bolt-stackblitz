@@ -19,12 +19,21 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/contexts/auth-context"
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
   confirmPassword: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  role: z.enum(["client", "designer"], { message: "Please select a role" }),
 })
 .refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -34,6 +43,7 @@ const formSchema = z.object({
 export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const { signup, isLoading: authLoading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -43,23 +53,19 @@ export default function SignupPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      role: "client",
     },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-    
-    // Mock signup process
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    toast({
-      title: "Account created",
-      description: "Welcome to Design Studio!",
-    })
-    
-    // In a real app, this would create the user account and redirect to dashboard
-    router.push("/client/dashboard")
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await signup(values.name, values.email, values.password, values.role as "client" | "designer")
+    } catch (error) {
+      // Error handling is done in the auth context
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -132,8 +138,29 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? (
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>I am a</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="client">Client (I need designs)</SelectItem>
+                        <SelectItem value="designer">Designer (I create designs)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isLoading || authLoading}>
+                {(isLoading || authLoading) ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Creating account...

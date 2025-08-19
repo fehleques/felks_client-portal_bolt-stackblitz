@@ -47,7 +47,7 @@ export function ThermometerDisplay({ data }: ThermometerDisplayProps) {
         </div>
       </div>
       
-      <Progress value={progress} className="h-2.5 w-full" />
+      <Progress value={progress} className="h-2.5 w-full" max={100} />
       
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>Cool</span>

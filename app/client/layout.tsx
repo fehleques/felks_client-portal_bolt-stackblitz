@@ -1,4 +1,5 @@
 import { MainNav } from "@/components/main-nav"
+import { AuthGuard } from "@/components/auth-guard"
 
 export default function ClientLayout({
   children,
@@ -6,11 +7,13 @@ export default function ClientLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <MainNav userRole="client" />
-      <main className="flex-1">
-        {children}
-      </main>
-    </div>
+    <AuthGuard requiredRole="client">
+      <div className="min-h-screen flex flex-col">
+        <MainNav userRole="client" />
+        <main className="flex-1">
+          {children}
+        </main>
+      </div>
+    </AuthGuard>
   )
 }
