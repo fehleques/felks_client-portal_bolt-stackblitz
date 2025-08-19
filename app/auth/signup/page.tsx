@@ -49,16 +49,30 @@ export default function SignupPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     
-    // Mock signup process
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    toast({
-      title: "Account created",
-      description: "Welcome to Design Studio!",
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      }),
     })
-    
-    // In a real app, this would create the user account and redirect to dashboard
-    router.push("/client/dashboard")
+
+    if (res.ok) {
+      toast({
+        title: "Account created",
+        description: "Welcome to Design Studio!",
+      })
+      router.push("/auth/login")
+    } else {
+      const data = await res.json()
+      toast({
+        title: "Signup failed",
+        description: data.error ?? "Failed to create account",
+        variant: "destructive",
+      })
+    }
     setIsLoading(false)
   }
 

@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { ArrowLeft, Loader2 } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -41,16 +42,25 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true)
     
-    // Mock login process
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    toast({
-      title: "Login successful",
-      description: "Welcome back to Design Studio!",
+    const res = await signIn("credentials", {
+      redirect: false,
+      email: values.email,
+      password: values.password,
     })
-    
-    // In a real app, this would authenticate the user and redirect to dashboard
-    router.push("/client/dashboard")
+
+    if (res?.error) {
+      toast({
+        title: "Login failed",
+        description: res.error,
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Login successful",
+        description: "Welcome back to Design Studio!",
+      })
+      router.push("/client/dashboard")
+    }
     setIsLoading(false)
   }
 
@@ -110,14 +120,14 @@ export default function LoginPage() {
               </Button>
             </form>
           </Form>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link href="/auth/signup" className="underline underline-offset-2 hover:text-foreground">
-                Sign up
-              </Link>
-            </p>
-          </div>
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                {"Don't have an account? "}
+                <Link href="/auth/signup" className="underline underline-offset-2 hover:text-foreground">
+                  Sign up
+                </Link>
+              </p>
+            </div>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { Logo } from "@/components/logo"
+import { signOut } from "next-auth/react"
 
 interface MainNavProps {
   userRole?: "client" | "designer"
@@ -94,8 +95,12 @@ export function MainNav({ userRole }: MainNavProps) {
           
           <div className="flex items-center gap-4">
             <ModeToggle />
-            <Button variant="ghost" asChild className="transition-all duration-200 hover:bg-muted/50">
-              <Link href="/auth/login">Log out</Link>
+            <Button
+              variant="ghost"
+              className="transition-all duration-200 hover:bg-muted/50"
+              onClick={() => signOut({ callbackUrl: "/auth/login" })}
+            >
+              Log out
             </Button>
           </div>
         </div>

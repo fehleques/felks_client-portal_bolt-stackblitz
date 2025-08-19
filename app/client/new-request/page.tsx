@@ -301,9 +301,9 @@ export default function NewRequestPage() {
                   <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium mb-1">Your request volume is high</p>
-                    <p className="text-xs">
-                      You've submitted several requests recently. You may experience slightly longer turnaround times.
-                    </p>
+                      <p className="text-xs">
+                        {"You've submitted several requests recently. You may experience slightly longer turnaround times."}
+                      </p>
                   </div>
                 </div>
                 
