@@ -16,17 +16,17 @@ interface MainNavProps {
 
 export function MainNav({ userRole }: MainNavProps) {
   const pathname = usePathname()
-  
+
   const isClient = userRole === "client"
   const isDesigner = userRole === "designer"
 
   const navItems = [
-    ...(isClient 
+    ...(isClient
       ? [
           { name: "Dashboard", href: "/client/dashboard" },
           { name: "New Request", href: "/client/new-request" },
           { name: "My Requests", href: "/client/requests" },
-        ] 
+        ]
       : []),
     ...(isDesigner
       ? [
@@ -40,61 +40,90 @@ export function MainNav({ userRole }: MainNavProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="container flex h-16 max-w-screen-2xl items-center">
+      <nav
+        className="container flex h-16 max-w-screen-2xl items-center"
+        aria-label="Main navigation"
+      >
         <div className="flex flex-1 items-center justify-between">
           <div className="flex items-center gap-4 md:gap-8">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  aria-label="Toggle menu"
+                >
+                  <Menu className="h-5 w-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[240px] sm:w-[300px]">
-                <nav className="flex flex-col gap-8 mt-8">
-                  {navItems.map((item) => (
+                <nav
+                  className="flex flex-col gap-8 mt-8"
+                  aria-label="Mobile navigation"
+                >
+                  <ul className="flex flex-col gap-8">
+                    {navItems.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          aria-current={
+                            pathname === item.href ? "page" : undefined
+                          }
+                          className={cn(
+                            "text-base font-medium transition-colors hover:text-foreground",
+                            pathname === item.href
+                              ? "text-foreground"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {item.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
+              </SheetContent>
+            </Sheet>
+
+            <Link href={userRole ? `/${userRole}/dashboard` : "/"}>
+              <Logo iconClassName="[&>svg]:h-5 [&>svg]:w-5" />
+            </Link>
+
+            <nav
+              className="hidden md:flex items-center gap-8"
+              aria-label="Desktop navigation"
+            >
+              <ul className="flex items-center gap-8">
+                {navItems.map((item) => (
+                  <li key={item.href}>
                     <Link
-                      key={item.href}
                       href={item.href}
+                      aria-current={
+                        pathname === item.href ? "page" : undefined
+                      }
                       className={cn(
-                        "text-base font-medium transition-colors hover:text-foreground",
+                        "text-sm font-medium transition-all duration-200 hover:text-foreground relative",
                         pathname === item.href
-                          ? "text-foreground"
-                          : "text-muted-foreground"
+                          ? "text-foreground after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
+                          : "text-muted-foreground",
                       )}
                     >
                       {item.name}
                     </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
-            
-            <Link href={userRole ? `/${userRole}/dashboard` : "/"}>
-              <Logo iconClassName="[&>svg]:h-5 [&>svg]:w-5" />
-            </Link>
-            
-            <nav className="hidden md:flex items-center gap-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "text-sm font-medium transition-all duration-200 hover:text-foreground relative",
-                    pathname === item.href
-                      ? "text-foreground after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-primary after:rounded-full"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
+                  </li>
+                ))}
+              </ul>
             </nav>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <ModeToggle />
-            <Button variant="ghost" asChild className="transition-all duration-200 hover:bg-muted/50">
+            <Button
+              variant="ghost"
+              asChild
+              className="transition-all duration-200 hover:bg-muted/50"
+            >
               <Link href="/auth/login">Log out</Link>
             </Button>
           </div>

@@ -19,15 +19,15 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
   const getStatusIcon = (status: RequestStatus) => {
     switch (status) {
       case "pending":
-        return <Clock className="h-4 w-4" />
+        return <Clock className="h-4 w-4" aria-hidden="true" />
       case "in_progress":
-        return <ArrowRightCircle className="h-4 w-4" />
+        return <ArrowRightCircle className="h-4 w-4" aria-hidden="true" />
       case "completed":
-        return <CheckCircle className="h-4 w-4" />
+        return <CheckCircle className="h-4 w-4" aria-hidden="true" />
       case "revision":
-        return <RefreshCcw className="h-4 w-4" />
+        return <RefreshCcw className="h-4 w-4" aria-hidden="true" />
       case "cancelled":
-        return <XCircle className="h-4 w-4" />
+        return <XCircle className="h-4 w-4" aria-hidden="true" />
     }
   }
   
@@ -65,9 +65,13 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
   
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-3">
+      <div
+        className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-3"
+        role="status"
+        aria-live="polite"
+      >
         <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-          <Clock className="h-6 w-6 text-muted-foreground" />
+          <Clock className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
         </div>
         <p className="text-muted-foreground">{emptyMessage}</p>
         <Link href="/client/new-request">
@@ -78,9 +82,10 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
       {requests.map((request) => (
-        <Card key={request.id} className="overflow-hidden transition-all duration-300 hover:shadow-soft-lg transform hover:-translate-y-1 rounded-xl border-0 shadow-soft">
+        <li key={request.id}>
+          <Card className="overflow-hidden transition-all duration-300 hover:shadow-soft-lg transform hover:-translate-y-1 rounded-xl border-0 shadow-soft">
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start">
               <Badge variant="outline" className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full", getStatusColor(request.status))}>
@@ -107,7 +112,7 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
                     : "text-muted-foreground"
                 )}>
                   {isOverdue(request.deadline) && request.status !== "completed" && (
-                    <AlertCircle className="h-3 w-3" />
+                    <AlertCircle className="h-3 w-3" aria-hidden="true" />
                   )}
                   Due: {format(new Date(request.deadline), "MMM d, yyyy")}
                 </span>
@@ -124,8 +129,9 @@ export function RequestList({ requests, emptyMessage = "No requests found." }: R
               </Button>
             </div>
           </CardFooter>
-        </Card>
+          </Card>
+        </li>
       ))}
-    </div>
+    </ul>
   )
 }

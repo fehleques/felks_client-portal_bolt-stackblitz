@@ -3,12 +3,15 @@ import type { Metadata } from 'next';
 import { Inter, DM_Sans } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { env } from '@/lib/env';
 
 const inter = Inter({ subsets: ['latin'] });
-const dmSans = DM_Sans({ 
+const dmSans = DM_Sans({
   subsets: ['latin'],
   variable: '--font-dm-sans',
 });
+
+void env;
 
 export const metadata: Metadata = {
   title: 'Design Studio Portal',

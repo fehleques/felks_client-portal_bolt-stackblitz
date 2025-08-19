@@ -25,30 +25,39 @@ export function ThermometerDisplay({ data }: ThermometerDisplayProps) {
   }
   
   return (
-    <div className="space-y-3">
+    <div
+      className="space-y-3"
+      role="img"
+      aria-label={`Thermometer showing ${Math.round(progress)} percent`}
+    >
       <div className="relative pt-6">
         {/* Thermometer visual */}
-        <div className="relative h-24 w-8 mx-auto bg-muted rounded-full overflow-hidden border">
-          <div 
+        <div
+          className="relative h-24 w-8 mx-auto bg-muted rounded-full overflow-hidden border"
+          aria-hidden="true"
+        >
+          <div
             className={`absolute bottom-0 w-full transition-all duration-1000 ${getColorClass()}`}
             style={{ height: `${progress}%` }}
           />
-          <div 
-            className="absolute bottom-0 left-0 right-0 h-3 bg-red-600 dark:bg-red-800" 
+          <div
+            className="absolute bottom-0 left-0 right-0 h-3 bg-red-600 dark:bg-red-800"
             style={{ opacity: progress > 95 ? 1 : 0.3 }}
           />
         </div>
-        
+
         {/* Temperature circle */}
-        <div 
+        <div
           className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/3 h-10 w-10 rounded-full flex items-center justify-center text-white text-xs font-medium border-2 border-white dark:border-gray-800 transition-all ${getColorClass()}`}
+          aria-hidden="true"
         >
           {Math.round(progress)}%
         </div>
       </div>
-      
+
       <Progress value={progress} className="h-2.5 w-full" />
-      
+      <span className="sr-only">Temperature is {Math.round(progress)}%</span>
+
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>Cool</span>
         <span>Warm</span>
