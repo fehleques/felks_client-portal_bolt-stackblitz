@@ -1,0 +1,74 @@
+.thermometerContainer {
+  @apply relative flex flex-col items-center;
+}
+
+.thermometerBody {
+  @apply relative bg-muted h-32 w-8 rounded-full overflow-hidden border;
+  
+  &::before {
+    content: '';
+    @apply absolute bottom-0 left-0 right-0 h-3 bg-red-600 dark:bg-red-800;
+    transition: opacity 0.3s ease;
+  }
+  
+  &.hot::before {
+    @apply opacity-100;
+  }
+  
+  &.cool::before {
+    @apply opacity-30;
+  }
+}
+
+.thermometerFluid {
+  @apply absolute bottom-0 w-full transition-all duration-1000;
+  
+  &.cool {
+    @apply bg-green-500;
+  }
+  
+  &.warm {
+    @apply bg-amber-500;
+  }
+  
+  &.hot {
+    @apply bg-red-500;
+  }
+}
+
+.indicator {
+  @apply absolute flex items-center justify-center w-10 h-10 rounded-full shadow-md text-white text-xs font-medium border-2 border-white dark:border-gray-800;
+  
+  &.cool {
+    @apply bg-green-500;
+  }
+  
+  &.warm {
+    @apply bg-amber-500;
+  }
+  
+  &.hot {
+    @apply bg-red-500;
+  }
+}
+
+.labels {
+  @apply flex justify-between w-full text-xs text-muted-foreground mt-2;
+}
+
+.warningMessage {
+  @apply mt-2 p-2 bg-amber-100 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 rounded-md;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}

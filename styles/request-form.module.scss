@@ -1,0 +1,50 @@
+.formContainer {
+  @apply grid gap-6;
+}
+
+.inputGroup {
+  @apply space-y-2;
+}
+
+.label {
+  @apply block text-sm font-medium;
+}
+
+.input {
+  @apply w-full p-2 border rounded-md;
+  transition: border-color 0.15s ease;
+  
+  &:focus {
+    @apply outline-none ring-2 ring-primary/50;
+  }
+}
+
+.textarea {
+  @apply min-h-[120px];
+}
+
+.errorMessage {
+  @apply text-xs text-red-500 mt-1;
+}
+
+.submitButton {
+  @apply transition-all;
+  
+  &:hover {
+    @apply transform -translate-y-0.5;
+  }
+}
+
+.thermometer {
+  position: relative;
+  
+  .bar {
+    @apply h-6 rounded-full bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 overflow-hidden;
+    transition: width 1s ease-out;
+  }
+  
+  .indicator {
+    @apply absolute w-4 h-4 bg-white rounded-full shadow-md border-2 top-1/2 transform -translate-y-1/2;
+    transition: left 1s ease-out;
+  }
+}
