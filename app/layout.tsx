@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter, DM_Sans } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { SubscriptionProvider } from '@/components/subscription-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 const dmSans = DM_Sans({ 
@@ -29,7 +30,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SubscriptionProvider>
+            {children}
+          </SubscriptionProvider>
           <Toaster />
         </ThemeProvider>
       </body>

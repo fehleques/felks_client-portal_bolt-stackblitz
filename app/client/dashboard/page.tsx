@@ -4,9 +4,12 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
+import { UpgradePrompt } from "@/components/upgrade-prompt"
+import { useSubscription } from "@/components/subscription-provider"
+import type { SubscriptionTier } from "@/lib/subscription"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
-  PlusCircle, Clock, CheckCircle2, FileWarning, AlertTriangle, 
+import {
+  PlusCircle, Clock, CheckCircle2, FileWarning,
   Thermometer, Zap, FileText
 } from "lucide-react"
 import { RequestList } from "@/components/request-list"
@@ -67,15 +70,30 @@ const thermometerData = {
 };
 
 export default function ClientDashboard() {
+  const { subscription } = useSubscription()
+  const tier: SubscriptionTier = subscription?.tier || 'basic'
+  const planLimits: Record<SubscriptionTier, number> = {
+    basic: 5,
+    premium: 20,
+    enterprise: 100,
+  }
+  const maxRequests = planLimits[tier]
+  const usedRequests = thermometerData.currentRequests
+  const atLimit = usedRequests >= maxRequests
+  const nearLimit = usedRequests / maxRequests >= 0.8
+
   return (
     <div className="container py-8 md:py-12 space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Client Dashboard</h1>
           <p className="text-muted-foreground text-lg mt-2 leading-relaxed">Manage your design requests and subscription status</p>
+          {subscription && (
+            <p className="text-sm text-muted-foreground mt-2">Plan: {tier} – Renews {new Date(subscription.renewsAt).toLocaleDateString()}</p>
+          )}
         </div>
         <Link href="/client/new-request">
-          <Button className="flex items-center gap-2 px-6 py-3 rounded-xl shadow-soft hover:shadow-soft-lg transform hover:-translate-y-0.5 transition-all duration-200">
+          <Button className="flex items-center gap-2 px-6 py-3 rounded-xl shadow-soft hover:shadow-soft-lg transform hover:-translate-y-0.5 transition-all duration-200" disabled={atLimit}>
             <PlusCircle className="h-4 w-4" />
             New Request
           </Button>
@@ -135,17 +153,10 @@ export default function ClientDashboard() {
             <div className="mt-6 text-sm">
               <p className="flex justify-between">
                 <span>Requests this week:</span>
-                <span className="font-medium">{thermometerData.currentRequests} of {thermometerData.maxRequests}</span>
+                <span className="font-medium">{thermometerData.currentRequests} of {maxRequests}</span>
               </p>
-              
-              {thermometerData.currentLevel >= 80 ? (
-                <div className="mt-4 p-3 bg-amber-100 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 rounded-xl flex items-start gap-2">
-                  <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-amber-800 dark:text-amber-300 text-xs">
-                    You're nearing your request limit. Consider spacing out new requests.
-                  </p>
-                </div>
-              ) : null}
+              {nearLimit && <UpgradePrompt message="You're nearing your request limit." />}
+              {atLimit && <UpgradePrompt message="You've reached your request limit." />}
             </div>
           </CardContent>
         </Card>
