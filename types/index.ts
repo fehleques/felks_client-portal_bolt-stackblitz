@@ -65,3 +65,8 @@ export interface Designer extends User {
   activeRequests: number;
   completedRequests: number;
 }
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
