@@ -37,7 +37,7 @@ export default function Home() {
                   Your On-Demand Design Team. No Hiring Required.
                 </h1>
                 <p className="text-white/90 text-lg md:text-xl max-w-[600px] mx-auto leading-relaxed">
-                  Built for creative agencies and fast-moving teams. One flat
+                  Built for creative agencies and fast-moving teams.One flat
                   fee, zero contracts, unlimited design — handled by elite
                   creatives who get it right the first time.
                 </p>
@@ -137,8 +137,8 @@ export default function Home() {
                 Privacy
               </Link>
               <Link
-                href="#"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                href="https://contra.com/fernando_felix?referralExperimentNid=DEFAULT_REFERRAL_PROGRAM&referrerUsername=fernando_felix"
+                className="text-muted-foreground hover:text-foreground transition-colors" target='_blank'
               >
                 Contact
               </Link>
