@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
@@ -11,7 +12,7 @@ import {
 } from "lucide-react"
 import { RequestList } from "@/components/request-list"
 import { ThermometerDisplay } from "@/components/thermometer-display"
-import { DesignRequest } from "@/types"
+import { DesignRequest, ThermometerData } from "@/types"
 
 // Mock data
 const activeRequests: DesignRequest[] = [
@@ -58,15 +59,15 @@ const completedRequests: DesignRequest[] = [
   }
 ];
 
-// Mock thermometer data
-const thermometerData = {
-  currentLevel: 65, // 0-100
-  maxRequests: 5,
-  currentRequests: 3,
-  cooldownDate: undefined // No cooldown
-};
-
 export default function ClientDashboard() {
+  const [thermometerData, setThermometerData] = useState<ThermometerData | null>(null)
+
+  useEffect(() => {
+    fetch("/api/heat/client1")
+      .then((res) => res.json())
+      .then(setThermometerData)
+  }, [])
+
   return (
     <div className="container py-8 md:py-12 space-y-10">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -131,18 +132,28 @@ export default function ClientDashboard() {
             <CardDescription className="text-base">Your current request volume</CardDescription>
           </CardHeader>
           <CardContent>
-            <ThermometerDisplay data={thermometerData} />
+            <ThermometerDisplay
+              data={
+                thermometerData ?? {
+                  currentLevel: 0,
+                  maxRequests: 5,
+                  currentRequests: 0,
+                }
+              }
+            />
             <div className="mt-6 text-sm">
               <p className="flex justify-between">
                 <span>Requests this week:</span>
-                <span className="font-medium">{thermometerData.currentRequests} of {thermometerData.maxRequests}</span>
+                <span className="font-medium">
+                  {thermometerData?.currentRequests ?? 0} of {thermometerData?.maxRequests ?? 5}
+                </span>
               </p>
-              
-              {thermometerData.currentLevel >= 80 ? (
+
+              {thermometerData?.currentLevel >= 80 ? (
                 <div className="mt-4 p-3 bg-amber-100 dark:bg-amber-950 border border-amber-200 dark:border-amber-900 rounded-xl flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
                   <p className="text-amber-800 dark:text-amber-300 text-xs">
-                    You're nearing your request limit. Consider spacing out new requests.
+                    You&apos;re nearing your request limit. Consider spacing out new requests.
                   </p>
                 </div>
               ) : null}
